@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+
+# uv
+.venv/
+
+# Data & model artifacts (these live in S3, not git)
+data/
+raw-data/
+activations/
+checkpoints/
+*.ckpt
+*.pt
+*.pth
+
+# Results (S3-backed, but keep small final figures/plots if you want them versioned — see note below)
+mi-results/
+probe-results/
+
+# AWS
+.aws/
+*.pem
+
+# Environment / secrets
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Jupyter (if you use any notebooks for exploration)
+.ipynb_checkpoints/
