@@ -92,8 +92,10 @@ edge on?	        disk-edge-on_yes_fraction
 tight spiral?   	spiral-winding_tight_fraction
 
 3. Preprocess images into AstroPT's expected patch format (16×16 patches, per their tokenizer)
+4. Push the prepared eval subset + label metadata to S3 (raw-data/) as the versioned, reproducible dataset snapshot
 
-4. Push the prepared eval subset + label metadata to S3 (raw-data/) as your versioned, reproducible dataset snapshot
+-> scripts/08_build_eval_subset.py
+---> actual eval-subset pull: sample from the HF validation split, join on dr8_id against the local parquet, keep matches, save images + labels, push to S3.
 
 **********************************************************************************
 PHASE 2: QUANTITATIVE SPINE: LINEAR PROBE accuracy
