@@ -1,0 +1,58 @@
+nohup: ignoring input
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+=== 015M ===
+number of parameters: 14.55M
+model loaded successfully from smith42/astropt_v2.0/astropt/015M
+args: {'n_layer': 6, 'n_head': 8, 'n_embd': 384, 'n_chan': 3, 'block_size': 1024, 'dropout': 0.0, 'modalities': [ModalityConfig(name='images', input_size=768, pos_input_size=1, patch_size=16, embed_pos=True, loss_weight=1.0)], 'attn_type': 'causal'}
+  250/3000 done, 84s elapsed, ~15.4 min remaining
+  500/3000 done, 179s elapsed, ~14.9 min remaining
+  750/3000 done, 267s elapsed, ~13.4 min remaining
+  1000/3000 done, 347s elapsed, ~11.6 min remaining
+  1250/3000 done, 425s elapsed, ~9.9 min remaining
+  1500/3000 done, 503s elapsed, ~8.4 min remaining
+  1750/3000 done, 592s elapsed, ~7.1 min remaining
+  2000/3000 done, 733s elapsed, ~6.1 min remaining
+  2250/3000 done, 856s elapsed, ~4.8 min remaining
+  2500/3000 done, 954s elapsed, ~3.2 min remaining
+  2750/3000 done, 1050s elapsed, ~1.6 min remaining
+  3000/3000 done, 1156s elapsed, ~0.0 min remaining
+Extracted embeddings: (3000, 6, 384)
+  layer 0: smooth=0.596, disc=0.631, artefact=0.818, edge_on=0.556, tight_spiral=0.682
+  layer 1: smooth=0.634, disc=0.643, artefact=0.751, edge_on=0.523, tight_spiral=0.654
+  layer 2: smooth=0.658, disc=0.661, artefact=0.788, edge_on=0.520, tight_spiral=0.690
+  layer 3: smooth=0.655, disc=0.681, artefact=0.817, edge_on=0.494, tight_spiral=0.691
+  layer 4: smooth=0.666, disc=0.669, artefact=0.841, edge_on=0.556, tight_spiral=0.751
+  layer 5: smooth=0.692, disc=0.702, artefact=0.893, edge_on=0.552, tight_spiral=0.736
+
+=== 095M ===
+number of parameters: 95.18M
+model loaded successfully from smith42/astropt_v2.0/astropt/095M
+args: {'n_layer': 12, 'n_head': 12, 'n_embd': 768, 'n_chan': 3, 'block_size': 1024, 'dropout': 0.0, 'modalities': [ModalityConfig(name='images', input_size=768, pos_input_size=1, patch_size=16, embed_pos=True, loss_weight=1.0)], 'attn_type': 'causal'}
+  250/3000 done, 426s elapsed, ~78.1 min remaining
+  500/3000 done, 834s elapsed, ~69.5 min remaining
+  750/3000 done, 1258s elapsed, ~62.9 min remaining
+  1000/3000 done, 1683s elapsed, ~56.1 min remaining
+  1250/3000 done, 2103s elapsed, ~49.1 min remaining
+  1500/3000 done, 2523s elapsed, ~42.1 min remaining
+  1750/3000 done, 2975s elapsed, ~35.4 min remaining
+  2000/3000 done, 3405s elapsed, ~28.4 min remaining
+  2250/3000 done, 3845s elapsed, ~21.4 min remaining
+  2500/3000 done, 4268s elapsed, ~14.2 min remaining
+  2750/3000 done, 4705s elapsed, ~7.1 min remaining
+  3000/3000 done, 5157s elapsed, ~0.0 min remaining
+Extracted embeddings: (3000, 12, 768)
+  layer 0: smooth=0.593, disc=0.639, artefact=0.781, edge_on=0.515, tight_spiral=0.570
+  layer 1: smooth=0.667, disc=0.670, artefact=0.828, edge_on=0.517, tight_spiral=0.642
+  layer 2: smooth=0.670, disc=0.656, artefact=0.794, edge_on=0.535, tight_spiral=0.635
+  layer 3: smooth=0.674, disc=0.678, artefact=0.796, edge_on=0.538, tight_spiral=0.673
+  layer 4: smooth=0.685, disc=0.679, artefact=0.795, edge_on=0.483, tight_spiral=0.672
+  layer 5: smooth=0.689, disc=0.685, artefact=0.797, edge_on=0.498, tight_spiral=0.670
+  layer 6: smooth=0.688, disc=0.688, artefact=0.822, edge_on=0.492, tight_spiral=0.692
+  layer 7: smooth=0.703, disc=0.712, artefact=0.890, edge_on=0.528, tight_spiral=0.717
+  layer 8: smooth=0.705, disc=0.704, artefact=0.876, edge_on=0.543, tight_spiral=0.757
+  layer 9: smooth=0.725, disc=0.722, artefact=0.903, edge_on=0.578, tight_spiral=0.738
+  layer 10: smooth=0.730, disc=0.718, artefact=0.865, edge_on=0.536, tight_spiral=0.720
+  layer 11: smooth=0.716, disc=0.727, artefact=0.916, edge_on=0.532, tight_spiral=0.700
+
+Saved and uploaded probe-results/summary.json

@@ -1,0 +1,492 @@
+{
+  "015M": {
+    "layer_0": {
+      "smooth": {
+        "accuracy": 0.6633333333333333,
+        "balanced_accuracy": 0.5962135988387917,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.6886666666666666,
+        "balanced_accuracy": 0.6313425351442317,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9133333333333333,
+        "balanced_accuracy": 0.818248828515769,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.7846666666666666,
+        "balanced_accuracy": 0.556387741046832,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.8586666666666667,
+        "balanced_accuracy": 0.6824966078697422,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_1": {
+      "smooth": {
+        "accuracy": 0.6966666666666667,
+        "balanced_accuracy": 0.6337884423478182,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.7266666666666667,
+        "balanced_accuracy": 0.6431776844753438,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9286666666666666,
+        "balanced_accuracy": 0.751250460696046,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.8173333333333334,
+        "balanced_accuracy": 0.5228994490358126,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9133333333333333,
+        "balanced_accuracy": 0.6536374073687506,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_2": {
+      "smooth": {
+        "accuracy": 0.7153333333333334,
+        "balanced_accuracy": 0.6583620611448788,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.7373333333333333,
+        "balanced_accuracy": 0.6613829913818015,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9266666666666666,
+        "balanced_accuracy": 0.7876586110672353,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.8126666666666666,
+        "balanced_accuracy": 0.5204889807162534,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9106666666666666,
+        "balanced_accuracy": 0.690063667675608,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_3": {
+      "smooth": {
+        "accuracy": 0.7273333333333334,
+        "balanced_accuracy": 0.6554250204118661,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.7713333333333333,
+        "balanced_accuracy": 0.6806719475088817,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9353333333333333,
+        "balanced_accuracy": 0.8170641815405676,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.84,
+        "balanced_accuracy": 0.4943181818181818,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9133333333333333,
+        "balanced_accuracy": 0.6914205197787288,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_4": {
+      "smooth": {
+        "accuracy": 0.7313333333333333,
+        "balanced_accuracy": 0.6656989930146058,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.7546666666666667,
+        "balanced_accuracy": 0.6687858029203284,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.958,
+        "balanced_accuracy": 0.8411783288580004,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.862,
+        "balanced_accuracy": 0.5560433884297521,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9186666666666666,
+        "balanced_accuracy": 0.7508088925999373,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_5": {
+      "smooth": {
+        "accuracy": 0.752,
+        "balanced_accuracy": 0.6915143336659711,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.7753333333333333,
+        "balanced_accuracy": 0.7023874279691988,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.962,
+        "balanced_accuracy": 0.8931448428368346,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.874,
+        "balanced_accuracy": 0.5521694214876033,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.926,
+        "balanced_accuracy": 0.7356486796785304,
+        "majority_baseline": 0.9826666666666667
+      }
+    }
+  },
+  "095M": {
+    "layer_0": {
+      "smooth": {
+        "accuracy": 0.6646666666666666,
+        "balanced_accuracy": 0.5931461489612628,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.7106666666666667,
+        "balanced_accuracy": 0.638962076526883,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9133333333333333,
+        "balanced_accuracy": 0.7808139840994051,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.8413333333333334,
+        "balanced_accuracy": 0.5151515151515151,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.8966666666666666,
+        "balanced_accuracy": 0.5695908569042898,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_1": {
+      "smooth": {
+        "accuracy": 0.718,
+        "balanced_accuracy": 0.666509797695727,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.744,
+        "balanced_accuracy": 0.6700266875180608,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9573333333333334,
+        "balanced_accuracy": 0.8283578160374875,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.884,
+        "balanced_accuracy": 0.5170454545454546,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9273333333333333,
+        "balanced_accuracy": 0.6418693247051456,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_2": {
+      "smooth": {
+        "accuracy": 0.726,
+        "balanced_accuracy": 0.6701782636305906,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.7573333333333333,
+        "balanced_accuracy": 0.6557140185962707,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9626666666666667,
+        "balanced_accuracy": 0.7936608224082558,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.8993333333333333,
+        "balanced_accuracy": 0.5350378787878788,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9513333333333334,
+        "balanced_accuracy": 0.6351894374282434,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_3": {
+      "smooth": {
+        "accuracy": 0.736,
+        "balanced_accuracy": 0.6737900299374036,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.78,
+        "balanced_accuracy": 0.6782964184330857,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9673333333333334,
+        "balanced_accuracy": 0.7960564418469962,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.906,
+        "balanced_accuracy": 0.5384814049586777,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9506666666666667,
+        "balanced_accuracy": 0.6726333368124413,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_4": {
+      "smooth": {
+        "accuracy": 0.7453333333333333,
+        "balanced_accuracy": 0.684778417853579,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.7906666666666666,
+        "balanced_accuracy": 0.679486307773377,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9646666666666667,
+        "balanced_accuracy": 0.7946875164534302,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.9146666666666666,
+        "balanced_accuracy": 0.4825241046831956,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.95,
+        "balanced_accuracy": 0.6722941237866611,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_5": {
+      "smooth": {
+        "accuracy": 0.75,
+        "balanced_accuracy": 0.6889741903293114,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.7913333333333333,
+        "balanced_accuracy": 0.6847260704754458,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9686666666666667,
+        "balanced_accuracy": 0.7967409045437793,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.926,
+        "balanced_accuracy": 0.4984504132231405,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9446666666666667,
+        "balanced_accuracy": 0.6695804195804196,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_6": {
+      "smooth": {
+        "accuracy": 0.7546666666666667,
+        "balanced_accuracy": 0.6879762768756237,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.802,
+        "balanced_accuracy": 0.6883467337537609,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9686666666666667,
+        "balanced_accuracy": 0.8216974674880219,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.9333333333333333,
+        "balanced_accuracy": 0.4921659779614325,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9513333333333334,
+        "balanced_accuracy": 0.6918641060432105,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_7": {
+      "smooth": {
+        "accuracy": 0.7686666666666667,
+        "balanced_accuracy": 0.7031604372675315,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.8226666666666667,
+        "balanced_accuracy": 0.7122252630505364,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.98,
+        "balanced_accuracy": 0.8899068077712842,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.944,
+        "balanced_accuracy": 0.5278925619834711,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9633333333333334,
+        "balanced_accuracy": 0.716861496712243,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_8": {
+      "smooth": {
+        "accuracy": 0.7733333333333333,
+        "balanced_accuracy": 0.7047593667785539,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.8173333333333334,
+        "balanced_accuracy": 0.7043379965663193,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.978,
+        "balanced_accuracy": 0.8764018322539884,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.9346666666666666,
+        "balanced_accuracy": 0.5432162534435262,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9686666666666667,
+        "balanced_accuracy": 0.7573583133284626,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_9": {
+      "smooth": {
+        "accuracy": 0.7866666666666666,
+        "balanced_accuracy": 0.7247233058151139,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.8306666666666667,
+        "balanced_accuracy": 0.721625388838838,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9806666666666667,
+        "balanced_accuracy": 0.902727320591797,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.9426666666666667,
+        "balanced_accuracy": 0.5775654269972452,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.968,
+        "balanced_accuracy": 0.7381275440976933,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_10": {
+      "smooth": {
+        "accuracy": 0.7933333333333333,
+        "balanced_accuracy": 0.730160800145151,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.8373333333333334,
+        "balanced_accuracy": 0.7181152152849786,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.9806666666666667,
+        "balanced_accuracy": 0.865292476175433,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.9406666666666667,
+        "balanced_accuracy": 0.5362431129476584,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9693333333333334,
+        "balanced_accuracy": 0.7199144139442647,
+        "majority_baseline": 0.9826666666666667
+      }
+    },
+    "layer_11": {
+      "smooth": {
+        "accuracy": 0.7833333333333333,
+        "balanced_accuracy": 0.7161616619794974,
+        "majority_baseline": 0.8053333333333333
+      },
+      "disc": {
+        "accuracy": 0.8366666666666667,
+        "balanced_accuracy": 0.7274600962110523,
+        "majority_baseline": 0.8813333333333333
+      },
+      "artefact": {
+        "accuracy": 0.982,
+        "balanced_accuracy": 0.9158900647607013,
+        "majority_baseline": 0.974
+      },
+      "edge_on": {
+        "accuracy": 0.932,
+        "balanced_accuracy": 0.5317665289256198,
+        "majority_baseline": 0.968
+      },
+      "tight_spiral": {
+        "accuracy": 0.9666666666666667,
+        "balanced_accuracy": 0.6996660056361549,
+        "majority_baseline": 0.9826666666666667
+      }
+    }
+  }
+}

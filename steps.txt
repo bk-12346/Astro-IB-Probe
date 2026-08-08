@@ -66,6 +66,7 @@ uv add boto3 python-dotenv
 -> scripts/05_inspect_checkpoint.py
 -> after looking at results will be using astropt v2.0 instead of v1.0.0
 
+
 *******************************************************************************
 PHASE 1 — DATA PIPELINE
 *******************************************************************************
@@ -96,22 +97,59 @@ tight spiral?   	spiral-winding_tight_fraction
 
 -> scripts/08_build_eval_subset.py
 ---> actual eval-subset pull: sample from the HF validation split, join on dr8_id against the local parquet, keep matches, save images + labels, push to S3.
+---> going forward with N=3000 samples
+
 
 **********************************************************************************
-PHASE 2: QUANTITATIVE SPINE: LINEAR PROBE accuracy
+PHASE 2 - QUANTITATIVE SPINE: LINEAR PROBE ACCURACY
 **********************************************************************************
 
-1. Reuse AstroPT's own scripts/linear_probe.py pattern as your baseline reference
-2. For each of your 3-4 selected model sizes: extract embeddings, train a simple linear classifier against each Galaxy Zoo label, record accuracy
-3. Log every probe result (model size, layer, label, accuracy) to S3 as structured JSON — this becomes your first real chart, and your sanity check that everything downstream is measuring something real
-4. This alone is a complete, defensible mini-result even if nothing else in the project worked — worth remembering under deadline pressure
+1. Reuse AstroPT's own scripts/linear_probe.py pattern as the baseline reference
+-> find AstroPT's actual embedding-extraction utility rather than reimplementing their tokenization (16×16 patches, spiral ordering, per-patch standardization) from scratch and risking a subtle mismatch with how the model was actually trained.
+---> find .venv -iname "*.py" -path "*astropt*"
+
+---> found the actual reference implementation — scripts/linear_probe.py, the real methodology. This tells us exactly how to preprocess and extract embeddings correctly:
+
+1. Normalization: per-patch, along dim=1, (x - mean) / (std + 1e-8) — matches the paper's description exactly
+2. Preprocessing wrapper: convert the image to a tensor, swap axes, run through galproc.process_galaxy (which internally patchifies, normalizes, and spiral-orders)
+3. Embedding extraction: model.generate_embeddings(B)["images"] — but this only gives one embedding per model (final layer, mean-pooled), not per-layer. 
+---> For our IB analysis we need every layer, so we'll replicate the block loop ourselves via hooks, same pattern as get_embeddings() internally, just capturing every step instead of only the last.
+
+2. For each of the 3-4 selected model sizes: extract embeddings, train a simple linear classifier against each Galaxy Zoo label, record accuracy
+-> scripts/09_linear_probe.py
+
+3. Log every probe result (model size, layer, label, accuracy) to S3 as structured JSON
+-> reults logged in probe-results/summary.json 
+
+*** Headline finding: balanced accuracy increases with depth for four of five labels, in both models. 
+---> smooth, disc, artefact, and tight_spiral all show a fairly consistent upward trend from layer 0 to the final layer — e.g. in 095M, smooth climbs from 0.593 (barely above chance) at layer 0 to 0.730 at layer 10, and artefact climbs from 0.781 to 0.916 by the final layer. 
+---> That's exactly the kind of depth-wise representation-refinement signal we hope to see, and it's a real, quantitative, defensible result on its own — this is our guaranteed floor from Phase 2, and it delivered.
+
+*** The interesting anomaly: edge_on never rises above chance in either model. 
+---> Every single layer, both sizes, balanced accuracy for edge_on sits in the 0.48-0.58 range — statistically indistinguishable from a coin flip, and in a couple of layers (015M layer 3: 0.494; 095M layer 4: 0.483) it dips below 0.5, 
+---> meaning a linear probe does no better than random guessing at recovering edge-on orientation from these representations, at any depth. 
+---> Treating as a genuine finding, not a bug to fix — four labels show the expected learning curve, one doesn't, and that's a real, reportable contrast. 
+---> Possible explanations worth stating honestly rather than picking one: edge-on-ness may require non-linear features a linear probe can't extract even if the model encodes them; or, at 2.8% prevalence, even 3000 samples may leave the probe under-constrained for this specific label.
+
+*** Capacity comparison, more tentative: 095M's peak balanced accuracy per label is generally a bit higher than 015M's peak (e.g. smooth: 0.692 vs 0.730; disc: 0.702 vs 0.727) 
+-> consistent with capacity helping, but the gap is modest enough that I am not including this in the findings
+-> Worth mentioning as a secondary observation, not a headline claim.
+
+4. Plot the results
+-> scripts/10_plot_probe_results.py 
+---> results are saved to figures/
 
 
-Phase 3 — Activation capture across model sizes (Days 7–10)
-Register forward hooks on AstroPT's transformer blocks — same methodology as your vlm_with_expert hooks in vla-grounding-probe, pointed at a new model family
-For each size × hooked layer, run the eval subset through and capture activations
-Stream activations to S3 (activations/) with a manifest JSON rather than holding them all locally — largest artifacts in the project, budget disk/bandwidth accordingly
-Spot-check activation shapes and a couple of embeddings by hand before scaling up the full sweep, to avoid discovering a shape bug after a long run
+*********************************************************************************
+PHASE 3 — ACTIVATION CAPTURE ACROSS MODELS
+*********************************************************************************
+
+1. Register forward hooks on AstroPT's transformer blocks
+2. For each size × hooked layer, run the eval subset through and capture activations
+3. Stream activations to S3 (activations/) with a manifest JSON rather than holding them all locally — largest artifacts in the project, budget disk/bandwidth accordingly
+4. Spot-check activation shapes and a couple of embeddings by hand before scaling up the full sweep, to avoid discovering a shape bug after a long run
+
+
 Phase 4 — Mutual information estimation (Days 10–15) — the scientific core
 Implement a kNN-based MI estimator (Kraskov-style; sklearn.feature_selection.mutual_info_regression/mutual_info_classif use this under the hood, or a dedicated package if you want more control) — committing to one estimator now, per our earlier discussion, rather than splitting time across two
 Estimate I(activation; input) and I(activation; label) per layer per model size
