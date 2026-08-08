@@ -9,6 +9,7 @@ __pycache__/
 
 # Data & model artifacts (these live in S3, not git)
 data/
+raw/
 raw-data/
 activations/
 checkpoints/

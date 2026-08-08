@@ -59,27 +59,52 @@ uv add boto3 python-dotenv
 -> scripts/03_smoke_test.py
 ---> smoke test for aws 
 
-
-
 6. Write the one-page scoping doc: research question (capacity-axis primary, training-axis stretch), hypothesis, MI estimator choice, checkpoint/size selection, success criteria for "did the probe portion work" independent of the IB result
+
+-> scripts/check_v1_checkpoints.py
+
+-> scripts/05_inspect_checkpoint.py
+-> after looking at results will be using astropt v2.0 instead of v1.0.0
 
 *******************************************************************************
 PHASE 1 — DATA PIPELINE
 *******************************************************************************
 
-uv add torch datasets boto3 scikit-learn matplotlib (plus AstroPT's own pinned deps)
-Pull a modest eval subset from Smith42/galaxies on Hugging Face (a few thousand images is enough for stable MI/probe estimates — you don't need their full 8.6M)
-Cross-match against Galaxy Zoo morphology labels (smooth/disc/artefact/edge-on/spiral) — check whether label cross-matches ship with the dataset or need a separate join against the DESI Legacy Survey catalog
-Preprocess images into AstroPT's expected patch format (16×16 patches, per their tokenizer)
-Push the prepared eval subset + label metadata to S3 (raw-data/) as your versioned, reproducible dataset snapshot
-Phase 2 — Quantitative spine: linear probe accuracy (Days 4–7) — do this before the IB analysis, not after
+1. Pull a modest eval subset from Smith42/galaxies on Hugging Face (a few thousand images is enough for stable MI/probe estimates — don't need their full 8.6M)
+-> scripts/06_inspect_dataset.py
+---> to check whether Galaxy Zoo labels are already in this dataset (matching dr8_id to metadata) or whether we need a separate crossmatch
+---> results show that it does not have the Galaxy Zoo labels in this dataset directly — just images and the dr8_id we'll need to join on.
+---> The Galaxy Zoo DESI catalog gives detailed morphology measurements for 8.67 million galaxies, keyed by a unique identifier (dr8Id) plus predicted vote fractions for smooth/featured, disk edge-on, spiral arms, bar type, bulge size, and more — and it's hosted on Zenodo
 
-This is deliberately sequenced early, per your ask to build in the quantitative spine from the start.
+2. Cross-match against Galaxy Zoo morphology labels (smooth/disc/artefact/edge-on/spiral) — check whether label cross-matches ship with the dataset or need a separate join against the DESI Legacy Survey catalog
+-> download the Galaxy Zoo DESI "friendly" catalog
+---> go to data.galaxyzoo.org
+---> find the Galaxy Zoo DESI section, and grab the Zenodo link (DOI 10.5281/zenodo.8360385) for the friendly/600MB version.
 
-Reuse AstroPT's own scripts/linear_probe.py pattern as your baseline reference
-For each of your 3-4 selected model sizes: extract embeddings, train a simple linear classifier against each Galaxy Zoo label, record accuracy
-Log every probe result (model size, layer, label, accuracy) to S3 as structured JSON — this becomes your first real chart, and your sanity check that everything downstream is measuring something real
-This alone is a complete, defensible mini-result even if nothing else in the project worked — worth remembering under deadline pressure
+-> scripts/07_inspect_zoo.py
+---> results show it has what we need
+
+Paper's label           Actual column
+smooth?             smooth-or-featured_smooth_fraction
+disc?               smooth-or-featured_featured-or-disk_fraction
+artefact?           smooth-or-featured_artifact_fraction
+edge on?	        disk-edge-on_yes_fraction
+tight spiral?   	spiral-winding_tight_fraction
+
+3. Preprocess images into AstroPT's expected patch format (16×16 patches, per their tokenizer)
+
+4. Push the prepared eval subset + label metadata to S3 (raw-data/) as your versioned, reproducible dataset snapshot
+
+**********************************************************************************
+PHASE 2: QUANTITATIVE SPINE: LINEAR PROBE accuracy
+**********************************************************************************
+
+1. Reuse AstroPT's own scripts/linear_probe.py pattern as your baseline reference
+2. For each of your 3-4 selected model sizes: extract embeddings, train a simple linear classifier against each Galaxy Zoo label, record accuracy
+3. Log every probe result (model size, layer, label, accuracy) to S3 as structured JSON — this becomes your first real chart, and your sanity check that everything downstream is measuring something real
+4. This alone is a complete, defensible mini-result even if nothing else in the project worked — worth remembering under deadline pressure
+
+
 Phase 3 — Activation capture across model sizes (Days 7–10)
 Register forward hooks on AstroPT's transformer blocks — same methodology as your vlm_with_expert hooks in vla-grounding-probe, pointed at a new model family
 For each size × hooked layer, run the eval subset through and capture activations
