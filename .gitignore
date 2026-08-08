@@ -16,9 +16,15 @@ checkpoints/
 *.pt
 *.pth
 
-# Results (S3-backed, but keep small final figures/plots if you want them versioned — see note below)
-mi-results/
-probe-results/
+# Raw/intermediate results (S3-backed, not versioned)
+mi-results/raw/
+probe-results/raw/
+
+# Final results (small, summary JSON — fine to version)
+# mi-results/summary.json and probe-results/summary.json will NOT be ignored
+
+# Figures (versioned so they render in README)
+# figures/ is NOT ignored — deliberately excluded from the rules above
 
 # AWS
 .aws/

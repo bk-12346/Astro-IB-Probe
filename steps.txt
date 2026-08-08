@@ -1,0 +1,107 @@
+*******************************************************************************
+PHASE 0 - SETUP AND VERIFICATION
+*******************************************************************************
+
+1. uv init ib-astropt-probe, create GitHub repo, initial pyproject.toml
+
+2. Install AstroPT as a dependency (uv add astropt — it's on PyPI per their release workflow) and confirm the load_astropt helper works end-to-end on CPU with the smallest available size
+-> uv add torch astropt boto3 datasets scikit-learn matplotlib numpy
+-> datasets — Hugging Face's library, needed to pull the Smith42/galaxies dataset and cross-matched labels
+-> scripts/00_smoke_test.py
+---> to check whether astropt loads successfully
+-> uv add huggingface_hub
+
+3. Enumerate exactly which model sizes are available in astroPT/models/fully_trained/ and pick 3-4 spanning small to large (bounded by what's CPU-tractable to run inference on)
+-> uv add huggingface_hub
+-> scripts/01_list_sizes.py
+---> to check the sizes
+-> scripts/02_cpu_timing_check.py
+
+4. Pull up the AstroPT paper (arXiv:2405.14930) and docs (astropt.readthedocs.io) and note their exact patch size, tokenization, and linear-probe methodology — we reuse their probe setup as our baseline, not reinvent it
+
+5. Set up AWS: S3 bucket (e.g. ib-astropt-probe) with prefixes raw-data/, activations/, probe-results/, mi-results/, figures/; scoped IAM user via the AWS CLI or console
+-> install aws CLI 
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+sudo apt install -y unzip   # if unzip isn't already installed
+unzip awscliv2.zip
+sudo ./aws/install
+
+-> check version 
+aws --version
+
+-> config with aws account credentials
+aws configure 
+
+-> create S3 bucket 
+aws s3 mb s3://astro-ib-probe --region us-east-1
+
+-> create prefix structure
+for prefix in raw-data activations probe-results mi-results figures; do
+  aws s3api put-object --bucket astro-ib-probe --key "${prefix}/"
+done
+
+-> create scoped IAM policy
+---> create iam-policy.json 
+
+-> create IAM policy and dedicated IAM user
+aws iam create-policy --policy-name astro-ib-probe-s3-policy --policy-document file://iam-policy.json
+aws iam create-user --user-name astro-ib-probe-user
+aws iam attach-user-policy --user-name astro-ib-probe-user --policy-arn arn:aws:iam::<YOUR_ACCOUNT_ID>:policy/astro-ib-probe-s3-policy
+aws iam create-access-key --user-name astro-ib-probe-user
+
+OR 
+
+- you can create the S3 bucket, IAM policy and IAM user through the AWS console
+
+-> add additional dependencies
+uv add boto3 python-dotenv
+
+-> scripts/03_smoke_test.py
+---> smoke test for aws 
+
+
+
+6. Write the one-page scoping doc: research question (capacity-axis primary, training-axis stretch), hypothesis, MI estimator choice, checkpoint/size selection, success criteria for "did the probe portion work" independent of the IB result
+
+*******************************************************************************
+PHASE 1 — DATA PIPELINE
+*******************************************************************************
+
+uv add torch datasets boto3 scikit-learn matplotlib (plus AstroPT's own pinned deps)
+Pull a modest eval subset from Smith42/galaxies on Hugging Face (a few thousand images is enough for stable MI/probe estimates — you don't need their full 8.6M)
+Cross-match against Galaxy Zoo morphology labels (smooth/disc/artefact/edge-on/spiral) — check whether label cross-matches ship with the dataset or need a separate join against the DESI Legacy Survey catalog
+Preprocess images into AstroPT's expected patch format (16×16 patches, per their tokenizer)
+Push the prepared eval subset + label metadata to S3 (raw-data/) as your versioned, reproducible dataset snapshot
+Phase 2 — Quantitative spine: linear probe accuracy (Days 4–7) — do this before the IB analysis, not after
+
+This is deliberately sequenced early, per your ask to build in the quantitative spine from the start.
+
+Reuse AstroPT's own scripts/linear_probe.py pattern as your baseline reference
+For each of your 3-4 selected model sizes: extract embeddings, train a simple linear classifier against each Galaxy Zoo label, record accuracy
+Log every probe result (model size, layer, label, accuracy) to S3 as structured JSON — this becomes your first real chart, and your sanity check that everything downstream is measuring something real
+This alone is a complete, defensible mini-result even if nothing else in the project worked — worth remembering under deadline pressure
+Phase 3 — Activation capture across model sizes (Days 7–10)
+Register forward hooks on AstroPT's transformer blocks — same methodology as your vlm_with_expert hooks in vla-grounding-probe, pointed at a new model family
+For each size × hooked layer, run the eval subset through and capture activations
+Stream activations to S3 (activations/) with a manifest JSON rather than holding them all locally — largest artifacts in the project, budget disk/bandwidth accordingly
+Spot-check activation shapes and a couple of embeddings by hand before scaling up the full sweep, to avoid discovering a shape bug after a long run
+Phase 4 — Mutual information estimation (Days 10–15) — the scientific core
+Implement a kNN-based MI estimator (Kraskov-style; sklearn.feature_selection.mutual_info_regression/mutual_info_classif use this under the hood, or a dedicated package if you want more control) — committing to one estimator now, per our earlier discussion, rather than splitting time across two
+Estimate I(activation; input) and I(activation; label) per layer per model size
+Log every estimate with its exact config (estimator params, sample size, layer, size) to S3 (mi-results/) — full reproducibility, re-plottable without rerunning
+Cross-check against Phase 2: does higher I(activation; label) track with higher probe accuracy? This is your estimator sanity check
+Phase 5 — Analysis & honest reporting (Days 15–18)
+Build the IB-plane trajectory plot: I(input) vs. I(label), tracked across model capacity, per layer
+Report plainly whether a compression-like pattern emerges as capacity increases, is ambiguous, or doesn't appear — no overclaiming either direction
+Write up the comparison against Phase 2's probe accuracy as the grounding result
+If Phase 6 (training-axis stretch) doesn't happen, this is a complete, coherent project on its own
+Phase 6 — Stretch: training-time trajectory (Days 18–21, only if ahead of schedule)
+Configure AstroPT's own train.py with checkpoint_schedule=log, num_checkpoints=6-8, smallest model size, on a reduced data subset
+Kick off training early enough in this window that you're not gambling the whole project on it finishing in time
+If it completes: repeat Phases 3-5's methodology across these real training-step checkpoints as a second, complementary trajectory
+If it doesn't finish in time: the capacity-axis result stands alone, and this becomes "future work" in your write-up — a legitimate, honest thing to say
+Phase 7 — Polish & application integration (Days 21–22)
+Finalize README: methodology, both quantitative results (probe accuracy + IB trajectory), limitations stated plainly
+Write the FUNDIS-specific project summary, citing Voloshynovskiy's bottleneck-problem work directly
+Link from portfolio site
+Buffer
