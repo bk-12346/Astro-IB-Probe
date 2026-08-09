@@ -149,12 +149,25 @@ PHASE 3 — ACTIVATION CAPTURE ACROSS MODELS
 3. Stream activations to S3 (activations/) with a manifest JSON rather than holding them all locally — largest artifacts in the project, budget disk/bandwidth accordingly
 4. Spot-check activation shapes and a couple of embeddings by hand before scaling up the full sweep, to avoid discovering a shape bug after a long run
 
+-> all steps covered under Phase 2
+-> get_all_layer_embeddings() in the script we ran: it manually replicates AstroPT's own block-iteration loop (for block in model.transformer.h: x = block(x)) and captures x.mean(dim=1) after every single layer
+-> that's activation capture, just done by directly looping over the exposed model.transformer.h ModuleList rather than using PyTorch's formal register_forward_hook() API. 
+-> Same result (every layer's activations, for every image, for both sizes), different mechanism. 
+-> Registering formal hooks would have been necessary if we needed to intercept activations without modifying the forward pass or without direct access to intermediate layers
+-> but since AstroPT's transformer.h is just a plain, iterable ModuleList, looping over it ourselves was simpler and gave us the same data with less code.
 
-Phase 4 — Mutual information estimation (Days 10–15) — the scientific core
-Implement a kNN-based MI estimator (Kraskov-style; sklearn.feature_selection.mutual_info_regression/mutual_info_classif use this under the hood, or a dedicated package if you want more control) — committing to one estimator now, per our earlier discussion, rather than splitting time across two
-Estimate I(activation; input) and I(activation; label) per layer per model size
-Log every estimate with its exact config (estimator params, sample size, layer, size) to S3 (mi-results/) — full reproducibility, re-plottable without rerunning
-Cross-check against Phase 2: does higher I(activation; label) track with higher probe accuracy? This is your estimator sanity check
+
+***********************************************************************************
+PHASE 4 — MUTUAL INFORMATION ESTIMATION — THE SCIENTIFIC CORE 
+***********************************************************************************
+
+1. Implement a kNN-based MI estimator (Kraskov-style; sklearn.feature_selection.mutual_info_regression/mutual_info_classif use this under the hood, or a dedicated package if you want more control) — committing to one estimator now, per our earlier discussion, rather than splitting time across two
+2. Estimate I(activation; input) and I(activation; label) per layer per model size
+3. Log every estimate with its exact config (estimator params, sample size, layer, size) to S3 (mi-results/) — full reproducibility, re-plottable without rerunning
+4. Cross-check against Phase 2: does higher I(activation; label) track with higher probe accuracy? This is your estimator sanity check
+
+
+
 Phase 5 — Analysis & honest reporting (Days 15–18)
 Build the IB-plane trajectory plot: I(input) vs. I(label), tracked across model capacity, per layer
 Report plainly whether a compression-like pattern emerges as capacity increases, is ambiguous, or doesn't appear — no overclaiming either direction
