@@ -161,10 +161,69 @@ PHASE 3 — ACTIVATION CAPTURE ACROSS MODELS
 PHASE 4 — MUTUAL INFORMATION ESTIMATION — THE SCIENTIFIC CORE 
 ***********************************************************************************
 
-1. Implement a kNN-based MI estimator (Kraskov-style; sklearn.feature_selection.mutual_info_regression/mutual_info_classif use this under the hood, or a dedicated package if you want more control) — committing to one estimator now, per our earlier discussion, rather than splitting time across two
+*** PROBLEM:
+-> High-dimensional inputs are explicitly flagged as the hard part of this whole methodology.
+-> Non-parametric mutual information estimation methods don't work well with high-dimensional data, and even the existence of the compression phase itself has been questioned specifically in cases where finiteness of the mutual information between input/output and hidden-layer variables can't be established for exactly this reason. 
+-> This is a real, acknowledged limitation across the field, not something specific to our project. 
+
+*** SOLUTION:
+-> The classical Tishby-style trick — treat "input" as the discrete sample identity, not the raw pixels.
+-> Since each training image is a unique, known sample, X can be treated as a discrete uniform distribution over N samples (probability 1/N each). 
+-> Since the network's mapping from X to a layer representation T is deterministic, this sidesteps the raw-pixel dimensionality problem entirely
+-> no PCA, no proxy needed, no dimensionality-choice decision to defend. 
+-> The tradeoff: it answers a slightly different, more abstract question ("how distinguishable/compressed are samples from each other at this layer") rather than "how much visual/pixel content is retained".
+
+--> Since each training image is a distinct, known sample (X uniform over N), and each layer's representation T is a deterministic function of X (no noise in the forward pass), the classic result is:
+  I(X; T) = H(T) — mutual information with the input collapses to just the entropy of the representation itself, because H(T|X) = 0 exactly. 
+--> No proxy, no PCA, no kNN density estimation needed.
+
+** The catch: T is continuous and 384-768 dimensional, so we can't compute entropy directly
+--> this is exactly why the original Tishby-style papers binned each neuron. 
+--> With a high-dimensional joint vector, per-dimension binning explodes combinatorially, 
+--> so the standard modern adaptation is: cluster the layer's embeddings (k-means), treat cluster assignment as the discretized state, and compute entropy of the cluster distribution. 
+--> Since clustering is also a deterministic function of T, determinism still holds, and I(X; T_clustered) = H(cluster assignment) exactly.
+
+--> For I(T; label), same discretized clusters, standard discrete mutual information against the binary label — clean, well-defined, no estimator ambiguity there at all.
+
+--> This means: no new embedding extraction, no new model inference — this all runs directly on data/embeddings_015M.npy and data/embeddings_095M.npy
+
+1. Implement a kNN-based MI estimator 
 2. Estimate I(activation; input) and I(activation; label) per layer per model size
 3. Log every estimate with its exact config (estimator params, sample size, layer, size) to S3 (mi-results/) — full reproducibility, re-plottable without rerunning
 4. Cross-check against Phase 2: does higher I(activation; label) track with higher probe accuracy? This is your estimator sanity check
+
+-> scripts/11_run_estimator.py
+--> the I(X;T) values are sitting almost exactly at the theoretical ceiling (log2(30) ≈ 4.907 bits) across nearly every layer, in both models 
+--> roughly 4.4-4.6 bits out of a 4.9 max, and barely moving with depth. 
+--> That's a real signal, not a good one for K=30 specifically: it suggests 30 clusters spread across ~3000 points in 384-768 dimensions is producing near-maximally-entropic, 
+--> roughly evenly-sized clusters regardless of what the representation actually looks like — a classic curse-of-dimensionality symptom, and exactly the kind of thing the field's own literature warned us about. 
+--> Also worth noting: I(T; label) barely moves across depth here (0.02-0.045 bits range, fairly flat/noisy), which is a genuine contrast with the clear depth-related rise we saw in the linear-probe accuracies. 
+--> That mismatch is worth reporting honestly as its own finding — it may mean K=30 genuinely can't resolve the signal the linear probe picked up, 
+--> or it may mean something more interesting about what a discretized/clustered view misses relative to a continuous linear decision boundary.
+--> We won't know which until we see how sensitive this is to K.
+
+-> run a k-sweep in scripts/11_run_estimator.py
+--> The saturation issue is real and K-independent — this is the headline finding for the MI side of the project. 
+--> Computing I(X;T) as a fraction of its theoretical ceiling (log2(K)):
+
+K	    015M range	095M range
+10  	86.7-93.1%	86.8-94.2%
+30	  88.8-92.7%	89.3-94.2%
+50  	89.9-92.6%	90.3-94.4%
+
+*** FINDING 1
+--> Consistently 87-94% of maximum entropy, at every K, in both models, at every layer. 
+--> This isn't a K-tuning problem we can fix by picking a different value — it holds regardless of cluster count, which is a much stronger finding than "K=30 happened to saturate."
+--> The likely mechanism: k-means on ~3000 points spread across 384-768 dimensions tends to produce roughly evenly-sized clusters almost independent of the representation's actual structure
+--> a textbook curse-of-dimensionality symptom, exactly what the literature warned us about. 
+--> No depth-dependent compression trend appears at any K — I(X;T) is flat-and-saturated across layers, not falling with depth the way a classic IB compression phase would predict.
+
+*** FINDING 2
+--> I(T; label) barely moves with depth, in sharp contrast to the linear-probe accuracies, which showed a clear rising trend. 
+--> Take artefact in 095M at K=30: 0.044 → 0.040 → 0.040 → 0.039 → 0.042 → 0.043 → 0.044 → 0.043 → 0.044 → 0.041 → 0.042 → 0.039 — essentially flat and noisy across all 12 layers, while the same layers' linear-probe balanced accuracy rose steadily from 0.78 to 0.92. 
+--> That's a genuine, reportable discrepancy between the two methods, not an inconsistency to paper over: the continuous, optimized linear probe detects depth-dependent refinement that the coarse, discrete cluster-based MI estimate — at any tested K — does not resolve.
+
+*** The discrete-sample-identity MI approach, at this sample size (~3000) and this dimensionality (384-768), doesn't have the resolution to detect a compression phase either way — we can't conclude compression is absent, only that this particular estimator can't see it. 
 
 
 
