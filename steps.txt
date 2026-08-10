@@ -161,6 +161,11 @@ PHASE 3 — ACTIVATION CAPTURE ACROSS MODELS
 PHASE 4 — MUTUAL INFORMATION ESTIMATION — THE SCIENTIFIC CORE 
 ***********************************************************************************
 
+1. Implement a kNN-based MI estimator 
+2. Estimate I(activation; input) and I(activation; label) per layer per model size
+3. Log every estimate with its exact config (estimator params, sample size, layer, size) to S3 (mi-results/) — full reproducibility, re-plottable without rerunning
+4. Cross-check against Phase 2: does higher I(activation; label) track with higher probe accuracy? This is your estimator sanity check
+
 *** PROBLEM:
 -> High-dimensional inputs are explicitly flagged as the hard part of this whole methodology.
 -> Non-parametric mutual information estimation methods don't work well with high-dimensional data, and even the existence of the compression phase itself has been questioned specifically in cases where finiteness of the mutual information between input/output and hidden-layer variables can't be established for exactly this reason. 
@@ -187,12 +192,8 @@ PHASE 4 — MUTUAL INFORMATION ESTIMATION — THE SCIENTIFIC CORE
 
 --> This means: no new embedding extraction, no new model inference — this all runs directly on data/embeddings_015M.npy and data/embeddings_095M.npy
 
-1. Implement a kNN-based MI estimator 
-2. Estimate I(activation; input) and I(activation; label) per layer per model size
-3. Log every estimate with its exact config (estimator params, sample size, layer, size) to S3 (mi-results/) — full reproducibility, re-plottable without rerunning
-4. Cross-check against Phase 2: does higher I(activation; label) track with higher probe accuracy? This is your estimator sanity check
 
--> scripts/11_run_estimator.py
+1. -> scripts/11_run_estimator.py
 --> the I(X;T) values are sitting almost exactly at the theoretical ceiling (log2(30) ≈ 4.907 bits) across nearly every layer, in both models 
 --> roughly 4.4-4.6 bits out of a 4.9 max, and barely moving with depth. 
 --> That's a real signal, not a good one for K=30 specifically: it suggests 30 clusters spread across ~3000 points in 384-768 dimensions is producing near-maximally-entropic, 
@@ -202,7 +203,7 @@ PHASE 4 — MUTUAL INFORMATION ESTIMATION — THE SCIENTIFIC CORE
 --> or it may mean something more interesting about what a discretized/clustered view misses relative to a continuous linear decision boundary.
 --> We won't know which until we see how sensitive this is to K.
 
--> run a k-sweep in scripts/11_run_estimator.py
+2. -> run a k-sweep in scripts/11_run_estimator.py
 --> The saturation issue is real and K-independent — this is the headline finding for the MI side of the project. 
 --> Computing I(X;T) as a fraction of its theoretical ceiling (log2(K)):
 
@@ -225,6 +226,48 @@ K	    015M range	095M range
 
 *** The discrete-sample-identity MI approach, at this sample size (~3000) and this dimensionality (384-768), doesn't have the resolution to detect a compression phase either way — we can't conclude compression is absent, only that this particular estimator can't see it. 
 
+3. -> scripts/12_pca_estimator.py
+
+--> The design choice: for the input side, instead of raw pixels (which would be enormous — a single galaxy's patchified tensor is on the order of hundreds of thousands of dimensions, impractical for PCA at our sample size), 
+---> we'll use the same mean-pooled patch representation as the input proxy — i.e., the normalized patch tensor averaged across all patches per image, before it enters the model. 
+---> This is methodologically symmetric with how we already mean-pool each layer's activations, and it's tractable (3000 × 768, not 3000 × ~800K). 
+---> We then PCA both this raw-input proxy and each layer's T down to a handful of components, and use sklearn's built-in kNN-based estimators (mutual_info_regression for continuous-continuous, mutual_info_classif for continuous-discrete)
+
+*** RESULTS 
+---> No saturation this time — good, this method has room to move. 
+---> Unlike the clustering approach (pinned at ~87-94% of ceiling everywhere), PCA-based I(X;T) ranges from 0.39 to 0.63 nats, genuinely varying across layers rather than sitting flat against a ceiling. 
+---> That confirms the earlier saturation really was a K-means/dimensionality artifact, not some fundamental property of the representations — useful to know, and worth stating that clearly in the write-up as validation that switching estimators was the right move.
+
+---> A mild, noisy upward trend in I(X;T) with depth — for 095M specifically, not 015M. 
+---> 095M goes from 0.39 at layer 0 to 0.63 at layer 11, unevenly but with a real overall climb.
+---> 015M stays flat and noisy around 0.50-0.58 with no clear direction. 
+---> This is actually the opposite of a compression phase — if anything, it's an increasing trend, which is exactly what Saxe et al.'s critique would predict for a modern architecture without saturating activations: fitting without compression. 
+
+*** FINDING 
+--->The more important finding: this second, independent method also fails to cleanly recover the depth-dependent label-informativeness rise that the linear probe found. 
+---> Look at artefact in 095M: 0.048 → 0.087 → 0.077 → 0.093 → 0.088 → 0.077 → 0.067 → 0.053 → 0.062 → 0.082 → 0.072 → 0.088 — noisy, oscillating, no clean monotonic climb, in sharp contrast to the probe's steady 0.78 → 0.92. 
+---> Two structurally different MI estimators — discrete clustering and continuous PCA-based — both fail to resolve the same signal an optimized linear classifier finds easily. 
+
+*** The headline isn't "we found compression" or "we found the opposite" — it's "standard MI estimation, by two independent methods, could not resolve the representational refinement that linear probing clearly detects — 
+
+4. -> scripts/13_gaussian_estimator.py
+
+--> The linear-Gaussian estimate recovers the depth-dependent trend cleanly, for every label, in both models.
+--> artefact in 095M: 0.045 → 0.100 → 0.102 → 0.115 → 0.122 → 0.134 → 0.135 → 0.154 → 0.167 → 0.172 → 0.170 → 0.172 — a clear, mostly-monotonic climb across all 12 layers. 
+--> Same pattern for smooth, disc, tight_spiral, in both 015M and 095M. 
+--> This is the first MI method of the three that actually agrees with what the linear probe found in Phase 2.
+
+--> And edge_on stays near-zero across every layer, in both models — 0.000-0.010 range throughout, essentially flat at the floor. 
+--> That's the same finding the probe gave us (chance-level balanced accuracy at every depth), now independently confirmed by a completely different measurement — correlation-based MI rather than classification accuracy. 
+--> Two structurally unrelated methods agreeing that edge_on carries no depth-dependent, linearly-recoverable signal is a much stronger claim than either alone.
+
+*** FINDING 
+--> This resolves the puzzle from the other two methods cleanly, and tells us something real about why they missed it. 
+--> The signal was there the whole time — the k-means and PCA approaches failed not because the depth-dependent structure doesn't exist, but because it's concentrated along a specific, task-relevant direction that unsupervised, high-dimensional density estimation at ~3000 samples simply can't resolve without being told where to look.
+
+--> this is evidence of fitting (I(T; label) rising with depth), not compression (I(X;T) falling with depth) — the two are distinct halves of the classic IB story, and we have real, cross-validated evidence for the first but no evidence either way for the second (both unsupervised methods showed flat/noisy I(X;T), no clear directional trend). 
+
+5. -> 14_positive_control.py 
 
 
 Phase 5 — Analysis & honest reporting (Days 15–18)
