@@ -56,4 +56,4 @@ For the full methodology, including why the estimator progression happened the w
 
 ## Acknowledgments
 
-Built on [AstroPT](https://github.com/Smith42/astroPT) (Smith et al., 2024) and the [Galaxy Zoo DESI](https://doi.org/10.5281/zenodo.8360385) morphology catalog (Walmsley et al., 2023). This project's information-theoretic framing draws on work in bottleneck problems and self-supervised representation learning, including [Voloshynovskiy et al.'s work on information-theoretic bottleneck problems](#)
+Built on [AstroPT](https://github.com/Smith42/astroPT) (Smith et al., 2024) and the [Galaxy Zoo DESI](https://doi.org/10.5281/zenodo.8360385) morphology catalog (Walmsley et al., 2023). This project's information-theoretic framing draws on work in bottleneck problems and self-supervised representation learning, including Voloshynovskiy et al.'s work on information-theoretic bottleneck problems.
